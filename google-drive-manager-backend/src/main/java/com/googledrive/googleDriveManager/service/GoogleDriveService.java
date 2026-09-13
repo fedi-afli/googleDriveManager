@@ -7,7 +7,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -31,23 +30,40 @@ public class GoogleDriveService {
     private final String clientSecret;
     private final String redirectUri;
     private final String applicationName;
-    private final NetHttpTransport transport;
-    private final GsonFactory jsonFactory;
     private final List<String> scopes = Collections.singletonList("https://www.googleapis.com/auth/drive");
+
+    private NetHttpTransport transport;
+    private GsonFactory jsonFactory;
 
     public GoogleDriveService(
             GoogleTokenRepository tokenRepository,
             @Value("${app.google-drive.client-id}") String clientId,
             @Value("${app.google-drive.client-secret}") String clientSecret,
             @Value("${app.google-drive.redirect-uri}") String redirectUri,
-            @Value("${app.google-drive.application-name}") String applicationName) throws Exception {
+            @Value("${app.google-drive.application-name}") String applicationName) {
         this.tokenRepository = tokenRepository;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
         this.applicationName = applicationName;
-        this.transport = GoogleNetHttpTransport.newTrustedTransport();
-        this.jsonFactory = GsonFactory.getDefaultInstance();
+    }
+
+    private NetHttpTransport getTransport() {
+        if (transport == null) {
+            try {
+                transport = GoogleNetHttpTransport.newTrustedTransport();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to initialize HTTP transport: " + e.getMessage(), e);
+            }
+        }
+        return transport;
+    }
+
+    private GsonFactory getJsonFactory() {
+        if (jsonFactory == null) {
+            jsonFactory = GsonFactory.getDefaultInstance();
+        }
+        return jsonFactory;
     }
 
     public boolean isDriveConnected() {
@@ -72,13 +88,13 @@ public class GoogleDriveService {
                 .execute();
 
         GoogleCredential credential = new GoogleCredential.Builder()
-                .setTransport(transport)
-                .setJsonFactory(jsonFactory)
+                .setTransport(getTransport())
+                .setJsonFactory(getJsonFactory())
                 .setClientAuthentication(clientSecrets.getInstalled())
                 .build()
                 .setFromTokenResponse(tokenResponse);
 
-        Drive drive = new Drive.Builder(transport, jsonFactory, credential)
+        Drive drive = new Drive.Builder(getTransport(), getJsonFactory(), credential)
                 .setApplicationName(applicationName)
                 .build();
 
@@ -106,8 +122,8 @@ public class GoogleDriveService {
                 .orElseThrow(() -> new RuntimeException("Google Drive is not connected. Please connect your account first."));
 
         GoogleCredential credential = new GoogleCredential.Builder()
-                .setTransport(transport)
-                .setJsonFactory(jsonFactory)
+                .setTransport(getTransport())
+                .setJsonFactory(getJsonFactory())
                 .setClientAuthentication(buildClientSecrets().getInstalled())
                 .build();
 
@@ -123,7 +139,7 @@ public class GoogleDriveService {
             }
         }
 
-        return new Drive.Builder(transport, jsonFactory, credential)
+        return new Drive.Builder(getTransport(), getJsonFactory(), credential)
                 .setApplicationName(applicationName)
                 .build();
     }
@@ -137,7 +153,7 @@ public class GoogleDriveService {
 
     private GoogleAuthorizationCodeFlow buildFlow(GoogleClientSecrets clientSecrets) {
         return new GoogleAuthorizationCodeFlow.Builder(
-                transport, jsonFactory, clientSecrets, scopes)
+                getTransport(), getJsonFactory(), clientSecrets, scopes)
                 .setAccessType("offline")
                 .setApprovalPrompt("force")
                 .build();
