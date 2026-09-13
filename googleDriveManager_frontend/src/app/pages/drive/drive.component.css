@@ -448,3 +448,61 @@
     gap: 12px;
   }
 }
+
+/* Connect Prompt */
+.connect-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 60px);
+  padding: 40px 20px;
+}
+
+.connect-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 48px 40px;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.connect-drive-icon {
+  margin-bottom: 20px;
+}
+
+.connect-card h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #202124;
+  margin: 0 0 12px 0;
+}
+
+.connect-card p {
+  font-size: 15px;
+  color: #5f6368;
+  line-height: 1.5;
+  margin: 0 0 28px 0;
+}
+
+.connect-btn {
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.connect-btn:hover:not(:disabled) {
+  background: #1557b0;
+  transform: translateY(-1px);
+}
+
+.connect-btn:disabled {
+  background: #a8c7fa;
+  cursor: not-allowed;
+}

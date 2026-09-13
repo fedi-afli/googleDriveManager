@@ -9,6 +9,15 @@ import { FileItem, MoveFileRequest, RenameFileRequest } from '../models/file.mod
 export class DriveService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:8080/api/drive';
+  private oauthUrl = 'http://localhost:8080/api/oauth';
+
+  getConnectionStatus(): Observable<{ connected: boolean }> {
+    return this.http.get<{ connected: boolean }>(`${this.oauthUrl}/status`);
+  }
+
+  getAuthorizationUrl(): Observable<{ url: string }> {
+    return this.http.get<{ url: string }>(`${this.oauthUrl}/authorize`);
+  }
 
   listFiles(folderId: string | null): Observable<FileItem[]> {
     const params: any = {};

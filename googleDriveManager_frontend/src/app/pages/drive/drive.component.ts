@@ -24,6 +24,10 @@ export class DriveComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
+  driveConnected = false;
+  checkingConnection = true;
+  connecting = false;
+
   selectedFile: FileItem | null = null;
   showMoveModal = false;
   showRenameModal = false;
@@ -39,7 +43,37 @@ export class DriveComponent implements OnInit {
   get isManager() { return this.authService.isManager(); }
 
   ngOnInit(): void {
-    this.loadFiles();
+    this.checkConnection();
+  }
+
+  checkConnection(): void {
+    this.checkingConnection = true;
+    this.driveService.getConnectionStatus().subscribe({
+      next: (status) => {
+        this.driveConnected = status.connected;
+        this.checkingConnection = false;
+        if (this.driveConnected) {
+          this.loadFiles();
+        }
+      },
+      error: () => {
+        this.checkingConnection = false;
+        this.errorMessage = 'Failed to check Google Drive connection.';
+      }
+    });
+  }
+
+  connectDrive(): void {
+    this.connecting = true;
+    this.driveService.getAuthorizationUrl().subscribe({
+      next: (response) => {
+        window.location.href = response.url;
+      },
+      error: () => {
+        this.connecting = false;
+        this.errorMessage = 'Failed to start Google Drive authorization.';
+      }
+    });
   }
 
   loadFiles(): void {
@@ -190,11 +224,5 @@ export class DriveComponent implements OnInit {
     if (mimeType.includes('document') || mimeType.includes('word')) return '📝';
     if (mimeType.includes('presentation')) return '📽️';
     return '📄';
-  }
-
-  formatSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1048576).toFixed(1) + ' MB';
   }
 }
