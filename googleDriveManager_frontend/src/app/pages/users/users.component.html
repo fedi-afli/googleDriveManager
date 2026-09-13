@@ -1,0 +1,173 @@
+<div class="users-page">
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="nav-left">
+      <svg class="nav-drive-icon" viewBox="0 0 24 24" width="28" height="28">
+        <path fill="#4285F4" d="M15.197 3H8.803L1.5 15.5l3.197 5.5h6.402L18.5 15.5z"/>
+        <path fill="#34A853" d="M15.197 3L8.803 3L1.5 15.5h6.402z" opacity="0.7"/>
+        <path fill="#FBBC04" d="M8.803 21h6.394l3.197-5.5L18.5 15.5l-3.197 5.5z" opacity="0.8"/>
+      </svg>
+      <span class="nav-title">User Management</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user">Hi, {{ currentUsername }}</span>
+      <button class="nav-btn" (click)="goToDrive()">Drive</button>
+      <button class="nav-btn nav-btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="users-content">
+    <div class="content-header">
+      <h2>Team Members</h2>
+      <button class="add-btn" (click)="openCreateModal()">
+        <span class="add-icon">+</span> Create New Account
+      </button>
+    </div>
+
+    @if (errorMessage) {
+      <div class="error-banner">{{ errorMessage }}</div>
+    }
+
+    @if (loading) {
+      <div class="loading-state">Loading...</div>
+    }
+
+    @if (!loading && users.length === 0) {
+      <div class="empty-state">No users found.</div>
+    }
+
+    @if (!loading && users.length > 0) {
+      <div class="users-table-wrapper">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users; track user.id) {
+              <tr>
+                <td class="user-name-cell">{{ user.username }}</td>
+                <td>
+                  <span class="role-badge" [class.role-manager]="user.role === 'TEAM_MANAGER'" [class.role-member]="user.role === 'TEAM_MEMBER'">
+                    {{ user.role === 'TEAM_MANAGER' ? 'Manager' : 'Member' }}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <button class="table-btn" (click)="openEditModal(user)">Edit</button>
+                  <button class="table-btn table-btn-delete" (click)="openDeleteConfirm(user)">Delete</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Create User Modal -->
+@if (showCreateModal) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Create New Account</h3>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" [(ngModel)]="newUser.username" placeholder="Enter username" class="text-input" />
+        </div>
+        <div class="form-group">
+          <label>Password (leave blank to auto-generate)</label>
+          <input type="text" [(ngModel)]="newUser.password" placeholder="Auto-generated if empty" class="text-input" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select [(ngModel)]="newUser.role" class="text-input">
+            <option value="TEAM_MEMBER">Team Member</option>
+            <option value="TEAM_MANAGER">Team Manager</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+        <button class="btn-primary" [disabled]="!newUser.username.trim()" (click)="createUser()">Create</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Created Password Modal -->
+@if (showCreatedModal) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Account Created</h3>
+      <div class="modal-body">
+        <p>The account has been created. Here are the credentials to hand to the user:</p>
+        <div class="credentials-box">
+          <div class="credential-row">
+            <span class="credential-label">Username:</span>
+            <span class="credential-value">{{ newUser.username }}</span>
+          </div>
+          <div class="credential-row">
+            <span class="credential-label">Password:</span>
+            <span class="credential-value">{{ createdPassword }}</span>
+          </div>
+        </div>
+        <p class="warning-text">Make sure to copy the password now. It won't be shown again.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-primary" (click)="closeAllModals()">Done</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Edit User Modal -->
+@if (showEditModal) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Edit User</h3>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" [(ngModel)]="editForm.username" placeholder="Enter username" class="text-input" />
+        </div>
+        <div class="form-group">
+          <label>New Password (leave blank to keep current)</label>
+          <input type="text" [(ngModel)]="editForm.password" placeholder="Unchanged" class="text-input" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select [(ngModel)]="editForm.role" class="text-input">
+            <option value="TEAM_MEMBER">Team Member</option>
+            <option value="TEAM_MANAGER">Team Manager</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+        <button class="btn-primary" (click)="updateUser()">Save</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation -->
+@if (showDeleteConfirm) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Delete User</h3>
+      <div class="modal-body">
+        <p>Are you sure you want to delete "{{ deletingUser?.username }}"?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+        <button class="btn-danger" (click)="deleteUser()">Delete</button>
+      </div>
+    </div>
+  </div>
+}

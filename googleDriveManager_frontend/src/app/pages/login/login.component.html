@@ -1,0 +1,46 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <svg class="drive-icon" viewBox="0 0 24 24" width="48" height="48">
+        <path fill="#4285F4" d="M15.197 3H8.803L1.5 15.5l3.197 5.5h6.402L18.5 15.5z" opacity="0.9"/>
+        <path fill="#34A853" d="M15.197 3L8.803 3L1.5 15.5h6.402z" opacity="0.7"/>
+        <path fill="#FBBC04" d="M8.803 21h6.394l3.197-5.5L18.5 15.5l-3.197 5.5z" opacity="0.8"/>
+        <path fill="#EA4335" d="M18.5 15.5l-3.197-5.5L8.803 3l3.197 5.5z" opacity="0.6"/>
+      </svg>
+      <h1>Google Drive Manager</h1>
+      <p>Sign in to manage your team's drive</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-field">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          placeholder="Enter your username"
+          [class.error]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        />
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-message">{{ errorMessage }}</div>
+      }
+
+      <button type="submit" class="login-btn" [disabled]="loading || loginForm.invalid">
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+  </div>
+</div>

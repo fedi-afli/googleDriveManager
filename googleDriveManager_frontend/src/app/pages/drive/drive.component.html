@@ -1,0 +1,178 @@
+<div class="drive-page">
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="nav-left">
+      <svg class="nav-drive-icon" viewBox="0 0 24 24" width="28" height="28">
+        <path fill="#4285F4" d="M15.197 3H8.803L1.5 15.5l3.197 5.5h6.402L18.5 15.5z"/>
+        <path fill="#34A853" d="M15.197 3L8.803 3L1.5 15.5h6.402z" opacity="0.7"/>
+        <path fill="#FBBC04" d="M8.803 21h6.394l3.197-5.5L18.5 15.5l-3.197 5.5z" opacity="0.8"/>
+      </svg>
+      <span class="nav-title">Drive Manager</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user">Hi, {{ username }}</span>
+      @if (isManager) {
+        <button class="nav-btn" (click)="goToUserManagement()">Manage Users</button>
+      }
+      <button class="nav-btn nav-btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs-bar">
+    @for (crumb of breadcrumbs; track crumb.id; let i = $index) {
+      <span class="breadcrumb" [class.active]="i === breadcrumbs.length - 1" (click)="navigateToBreadcrumb(i)">
+        {{ crumb.name }}
+      </span>
+      @if (i < breadcrumbs.length - 1) {
+        <span class="breadcrumb-separator">/</span>
+      }
+    }
+  </div>
+
+  <!-- Main Content -->
+  <div class="drive-content">
+    <div class="content-header">
+      <h2>{{ breadcrumbs[breadcrumbs.length - 1].name }}</h2>
+      <button class="upload-btn" (click)="openUploadModal()">
+        <span class="upload-icon">+</span> Upload File
+      </button>
+    </div>
+
+    @if (errorMessage) {
+      <div class="error-banner">{{ errorMessage }}</div>
+    }
+
+    @if (loading) {
+      <div class="loading-state">Loading...</div>
+    }
+
+    @if (!loading && folders.length === 0 && files.length === 0) {
+      <div class="empty-state">
+        <p>This folder is empty.</p>
+      </div>
+    }
+
+    @if (!loading) {
+      <!-- Folders -->
+      @if (folders.length > 0) {
+        <div class="section-label">Folders</div>
+        <div class="file-grid">
+          @for (folder of folders; track folder.id) {
+            <div class="file-card folder-card" (click)="openFolder(folder)">
+              <div class="file-icon-large">📁</div>
+              <div class="file-name">{{ folder.name }}</div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Files -->
+      @if (files.length > 0) {
+        <div class="section-label">Files</div>
+        <div class="file-grid">
+          @for (file of files; track file.id) {
+            <div class="file-card">
+              <div class="file-icon-large">{{ getFileIcon(file.mimeType) }}</div>
+              <div class="file-name" [title]="file.name">{{ file.name }}</div>
+              <div class="file-actions">
+                <button class="action-btn" title="Move" (click)="openMoveModal(file)">📂</button>
+                <button class="action-btn" title="Rename" (click)="openRenameModal(file)">✏️</button>
+                <button class="action-btn action-btn-delete" title="Delete" (click)="openDeleteConfirm(file)">🗑️</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- Upload Modal -->
+@if (showUploadModal) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Upload File</h3>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Choose a file</label>
+          <input type="file" (change)="onFileSelected($event)" class="file-input" />
+        </div>
+        <div class="form-group">
+          <label>File name</label>
+          <input type="text" [(ngModel)]="uploadCustomName" placeholder="Enter file name" class="text-input" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+        <button class="btn-primary" [disabled]="!selectedFileUpload || uploading" (click)="confirmUpload()">
+          {{ uploading ? 'Uploading...' : 'Upload' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Move Modal -->
+@if (showMoveModal) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Move "{{ selectedFile?.name }}"</h3>
+      <div class="modal-body">
+        <p class="modal-hint">Select a destination folder:</p>
+        @if (folders.length === 0) {
+          <p class="empty-hint">No folders available in the current directory.</p>
+        }
+        @for (folder of folders; track folder.id) {
+          <div class="folder-option" (click)="moveFile(folder.id)">
+            📁 {{ folder.name }}
+          </div>
+        }
+        @if (currentFolderId !== null) {
+          <div class="folder-option" (click)="moveFile('root')">
+            📁 Move to My Drive (root)
+          </div>
+        }
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Rename Modal -->
+@if (showRenameModal) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Rename File</h3>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>New name</label>
+          <input type="text" [(ngModel)]="newName" placeholder="Enter new name" class="text-input" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+        <button class="btn-primary" [disabled]="!newName.trim()" (click)="confirmRename()">Rename</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation -->
+@if (showDeleteConfirm) {
+  <div class="modal-overlay" (click)="closeAllModals()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Delete File</h3>
+      <div class="modal-body">
+        <p>Are you sure you want to delete "{{ selectedFile?.name }}"?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeAllModals()">Cancel</button>
+        <button class="btn-danger" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+}
