@@ -6,9 +6,11 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserRequest {
+@Builder
+public class BrandMemberResponse {
+    private Long id;
+    private Long userId;
     private String username;
-    private String password;
     private String role;
-    private Boolean active;
+    private String driveFolderId;
 }

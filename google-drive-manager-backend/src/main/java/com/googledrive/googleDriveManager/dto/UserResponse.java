@@ -11,5 +11,6 @@ public class UserResponse {
     private Long id;
     private String username;
     private String role;
+    private boolean active;
     private String password;
 }

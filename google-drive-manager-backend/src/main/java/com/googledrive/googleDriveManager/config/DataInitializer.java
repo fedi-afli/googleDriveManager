@@ -20,6 +20,7 @@ public class DataInitializer {
                         .username(adminUsername)
                         .password(passwordEncoder.encode("tawtaw"))
                         .role(Role.TEAM_MANAGER)
+                        .active(true)
                         .build();
                 userRepository.save(admin);
             }

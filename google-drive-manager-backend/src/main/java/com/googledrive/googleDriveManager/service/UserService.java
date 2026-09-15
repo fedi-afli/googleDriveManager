@@ -39,7 +39,7 @@ public class UserService {
             password = generateRandomPassword();
         }
 
-        Role role = Role.TEAM_MEMBER;
+        Role role = Role.COPYWRITER;
         if (request.getRole() != null && !request.getRole().isBlank()) {
             role = Role.valueOf(request.getRole());
         }
@@ -48,6 +48,7 @@ public class UserService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(password))
                 .role(role)
+                .active(true)
                 .build();
         user = userRepository.save(user);
 
@@ -76,6 +77,10 @@ public class UserService {
             user.setRole(Role.valueOf(request.getRole()));
         }
 
+        if (request.getActive() != null) {
+            user.setActive(request.getActive());
+        }
+
         user = userRepository.save(user);
         return toResponse(user);
     }
@@ -92,6 +97,7 @@ public class UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .role(user.getRole().name())
+                .active(user.isActive())
                 .build();
     }
 

@@ -225,6 +225,21 @@ public class GoogleDriveService {
         drive.files().delete(fileId).execute();
     }
 
+    public String createFolder(String name, String parentFolderId) throws IOException {
+        Drive drive = getDriveService();
+        File folderMetadata = new File();
+        folderMetadata.setName(name);
+        folderMetadata.setMimeType("application/vnd.google-apps.folder");
+        if (parentFolderId != null && !parentFolderId.equals("root")) {
+            folderMetadata.setParents(Collections.singletonList(parentFolderId));
+        }
+        File created = drive.files()
+                .create(folderMetadata)
+                .setFields("id")
+                .execute();
+        return created.getId();
+    }
+
     private FileItem toFileItem(File file) {
         return FileItem.builder()
                 .id(file.getId())
