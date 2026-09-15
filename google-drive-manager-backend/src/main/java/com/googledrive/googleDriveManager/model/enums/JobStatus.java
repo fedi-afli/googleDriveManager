@@ -1,6 +1,6 @@
 package com.googledrive.googleDriveManager.model.enums;
 
-public enum JobState {
+public enum JobStatus {
     Done,
     Pending
 }
