@@ -1,6 +1,6 @@
 package com.googledrive.googleDriveManager.config;
 
-import com.googledrive.googleDriveManager.model.Role;
+import com.googledrive.googleDriveManager.model.enums.Role;
 import com.googledrive.googleDriveManager.model.User;
 import com.googledrive.googleDriveManager.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -14,11 +14,11 @@ public class DataInitializer {
     @Bean
     CommandLineRunner initAdminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            String adminUsername = "Mootaz Rahal";
+            String adminUsername = "moorahal";
             if (!userRepository.existsByUsername(adminUsername)) {
                 User admin = User.builder()
                         .username(adminUsername)
-                        .password(passwordEncoder.encode("tawta5rafih"))
+                        .password(passwordEncoder.encode("tawtaw"))
                         .role(Role.TEAM_MANAGER)
                         .build();
                 userRepository.save(admin);

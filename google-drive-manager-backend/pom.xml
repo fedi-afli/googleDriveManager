@@ -65,10 +65,11 @@
 			<artifactId>google-api-client</artifactId>
 			<version>2.7.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-drive</artifactId>
-			<version>v3-rev20240819-2.0.0</version>
+			<version>v3-rev20260128-2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.auth</groupId>

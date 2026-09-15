@@ -4,11 +4,12 @@ import { AuthService } from '../../services/auth.service';
 import { DriveService } from '../../services/drive.service';
 import { FileItem } from '../../models/file.model';
 import { Router } from '@angular/router';
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-drive',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './drive.component.html',
   styleUrl: './drive.component.css'
 })

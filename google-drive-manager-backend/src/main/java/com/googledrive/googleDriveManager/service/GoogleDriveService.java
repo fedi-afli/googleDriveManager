@@ -70,13 +70,14 @@ public class GoogleDriveService {
         return tokenRepository.findFirstByOrderByIdAsc().isPresent();
     }
 
-    public String getAuthorizationUrl() {
+    public String getAuthorizationUrl(String state) {
         GoogleClientSecrets clientSecrets = buildClientSecrets();
         GoogleAuthorizationCodeFlow flow = buildFlow(clientSecrets);
         return flow.newAuthorizationUrl()
                 .setRedirectUri(redirectUri)
                 .setAccessType("offline")
                 .setApprovalPrompt("force")
+                .setState(state)
                 .build();
     }
 
@@ -90,7 +91,7 @@ public class GoogleDriveService {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setTransport(getTransport())
                 .setJsonFactory(getJsonFactory())
-                .setClientAuthentication(clientSecrets.getInstalled())
+                .setClientSecrets(clientSecrets)   // <-- fixed
                 .build()
                 .setFromTokenResponse(tokenResponse);
 
@@ -124,7 +125,7 @@ public class GoogleDriveService {
         GoogleCredential credential = new GoogleCredential.Builder()
                 .setTransport(getTransport())
                 .setJsonFactory(getJsonFactory())
-                .setClientAuthentication(buildClientSecrets().getInstalled())
+                .setClientSecrets(buildClientSecrets())   // <-- fixed
                 .build();
 
         credential.setAccessToken(token.getAccessToken());

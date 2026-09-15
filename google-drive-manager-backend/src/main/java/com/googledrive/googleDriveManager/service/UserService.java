@@ -3,7 +3,7 @@ package com.googledrive.googleDriveManager.service;
 import com.googledrive.googleDriveManager.dto.CreateUserRequest;
 import com.googledrive.googleDriveManager.dto.UpdateUserRequest;
 import com.googledrive.googleDriveManager.dto.UserResponse;
-import com.googledrive.googleDriveManager.model.Role;
+import com.googledrive.googleDriveManager.model.enums.Role;
 import com.googledrive.googleDriveManager.model.User;
 import com.googledrive.googleDriveManager.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;

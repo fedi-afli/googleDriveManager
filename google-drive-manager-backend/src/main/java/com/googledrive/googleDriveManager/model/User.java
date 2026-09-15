@@ -1,5 +1,6 @@
 package com.googledrive.googleDriveManager.model;
 
+import com.googledrive.googleDriveManager.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 

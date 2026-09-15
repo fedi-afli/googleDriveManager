@@ -1,5 +1,6 @@
 package com.googledrive.googleDriveManager.security;
 
+import com.googledrive.googleDriveManager.model.enums.Role;
 import com.googledrive.googleDriveManager.model.User;
 import com.googledrive.googleDriveManager.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,9 +24,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        Role role = user.getRole() != null ? user.getRole() : Role.TEAM_MEMBER; // or reject login instead
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+                List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
     }
 }

@@ -48,11 +48,13 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/oauth/**").permitAll()
+                .requestMatchers("/api/oauth/callback").permitAll()   // Google redirect, no JWT possible — state param protects it
+                .requestMatchers("/api/oauth/status").authenticated()  // any logged-in user can check connection status
+                .requestMatchers("/api/oauth/authorize").hasRole("TEAM_MANAGER")
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("TEAM_MANAGER")
                 .anyRequest().authenticated()
-            )
+        )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
